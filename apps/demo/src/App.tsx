@@ -1,32 +1,76 @@
+import { Controller, useForm, type FieldError } from "react-hook-form";
+
 import { InputMoney } from "@fulviocanducci/input-money";
 import { InputDate } from "@fulviocanducci/input-date";
-import { useState } from "react";
+import { schema } from "./utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type z from "zod";
+
+type FormData = z.infer<typeof schema>;
+
+function setCssValidOrInvalid(data: FieldError | undefined, moreCssClass?: string | undefined) {
+  const css = data ? "form-control form-control-sm is-invalid" : "form-control form-control-sm is-valid";
+  return css + (moreCssClass != null && moreCssClass.trim().length > 0 ? " " + moreCssClass : "");
+}
 
 function App() {
-  const [value, setValue] = useState(0);
-  const [date, setDate] = useState("");
-  const onChangeValue = (n: number) => {
-    setValue(() => n);
+  const {
+    control,
+    formState: { errors, isValid, isSubmitting },
+    handleSubmit,
+  } = useForm({
+    resolver: zodResolver(schema),
+    values: { value: 0, date: "" },
+    mode: "all",
+  });
+
+  const errorsSubmitButtonState: boolean = !isValid || isSubmitting;
+
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+    alert(JSON.stringify(data, null, 2));
   };
-  const onChangeDate = (n: string) => {
-    setDate(() => n);
-  };
+
   return (
     <>
-      <div className="p-3 m-3">
-        <InputMoney value={value} onChange={onChangeValue} className="form-control form-control-sm text-end" />
-        <label>{value}</label>
-      </div>
-      <div className="p-3 m-3">
-        <InputDate
-          value={date}
-          placeholder="DD/MM/YYYY"
-          onChange={onChangeDate}
-          mask="00/00/0000"
-          className="form-control form-control-sm"
-        />
-        <label>{date}</label>
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="p-1 m-1">
+          <Controller
+            name="value"
+            control={control}
+            render={({ field }) => (
+              <InputMoney
+                value={field.value}
+                onChange={field.onChange}
+                className={setCssValidOrInvalid(errors.value, "text-end")}
+                autoFocus
+              />
+            )}
+          />
+          {errors.value && <div className="text-danger">{errors.value.message}</div>}
+        </div>
+        <div className="p-1 m-1">
+          <Controller
+            name="date"
+            control={control}
+            render={({ field }) => (
+              <InputDate
+                value={field.value}
+                onChange={field.onChange}
+                mask="00/00/0000"
+                className={setCssValidOrInvalid(errors.date)}
+              />
+            )}
+          />
+
+          {errors.date && <div className="text-danger">{errors.date.message}</div>}
+        </div>
+        <div className="p-1 m-1">
+          <button type="submit" disabled={errorsSubmitButtonState} className="btn btn-primary btn-sm">
+            Adicionar
+          </button>
+        </div>
+      </form>
     </>
   );
 }
