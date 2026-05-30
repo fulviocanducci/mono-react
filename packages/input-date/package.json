@@ -1,5 +1,5 @@
 {
-  "name": "@fulviocanducci/input-money",
+  "name": "@fulviocanducci/input-date",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -23,5 +23,9 @@
     "react-dom": "^19.2.6",
     "typescript": "^6.0.3",
     "vite": "^8.0.14"
+  },
+  "dependencies": {
+    "imask": "^7.6.1",
+    "react-imask": "^7.6.1"
   }
 }
